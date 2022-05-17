@@ -37,11 +37,14 @@ def put_png_to_jpg(img_jpg, img_png):
     cv2.imwrite("output.png", res_img)
  
 def coverImg():
-  imgList = ["test-png/_0012_sky1.png", 
-  "test-png/_0006_cityBG.png", 
-  "test-png/_0004_building2.png",
-  "test-png/_0003_light.png",
-  "test-png/_0001_c2.png"]
+  imgList = ["test-png/-_0018_sky3.png", 
+  "test-png/-_0014_sun1.png", 
+  "test-png/-_0010_cloud3.png",
+  "test-png/-_0007_m2.png", 
+  "test-png/-_0006_city1.png",
+  "test-png/-_0005_building2.png",
+  "test-png/-_0005_building2.png",
+  "test-png/-_0003_c1.png"]
   i = 0
   for img in imgList:
     if os.path.exists("output.png"):
