@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import os
+from itertools import product
  
  
 def add_alpha_channel(img):
@@ -30,31 +31,47 @@ def Resize_cv2(img_file_name, img_png):
     return newImg
  
  
-def put_png_to_jpg(img_jpg, img_png):
+def put_png_to_jpg(fileName, img_jpg, img_png):
     img_png = cv2.imread(img_png, cv2.IMREAD_UNCHANGED)
     img_jpg = Resize_cv2(img_jpg, img_png)  # 变换大小跟透明图一样
     res_img = merge_img(img_jpg, img_png, 0, img_png.shape[0], 0, img_png.shape[1])
-    cv2.imwrite("output.png", res_img)
+    cv2.imwrite(fileName, res_img)
  
 def coverImg():
-  imgList = ["test-png/-_0018_sky3.png", 
-  "test-png/-_0014_sun1.png", 
-  "test-png/-_0010_cloud3.png",
-  "test-png/-_0007_m2.png", 
-  "test-png/-_0006_city1.png",
-  "test-png/-_0005_building2.png",
-  "test-png/-_0005_building2.png",
-  "test-png/-_0003_c1.png"]
-  i = 0
-  for img in imgList:
-    if os.path.exists("output.png"):
-      put_png_to_jpg("output.png", img)
-    else:
-      if i == 0:
-        i = 1
-        continue
+  bgPath = "蝴蝶/背景"
+  bgFiles = os.listdir(bgPath)
+
+  hdPath = "蝴蝶/蝴蝶"
+  hdFiles = os.listdir(hdPath)
+
+  zsPath = "蝴蝶/装饰"
+  zsFiles = os.listdir(zsPath)
+
+  dzPath = "蝴蝶/点缀"
+  dzFiles = os.listdir(dzPath)
+
+  
+  loop_val = [bgFiles, hdFiles, zsFiles, dzFiles]
+  fileIndex = 0
+  for imgList in product(*loop_val):
+    print(imgList)
+    i = 0
+    for img in imgList:
+      imgPath = "test-png/" + img
+      bgPath = "test-png/" + imgList[0]
+      fileImgName = str(fileIndex) + ".png"
+      print("imgPath", imgPath)
+      print("bgPath", bgPath)
+      print("fileImgName", fileImgName)
+      if os.path.exists(fileImgName):
+        put_png_to_jpg(fileImgName, fileImgName, imgPath)
       else:
-        put_png_to_jpg(imgList[0], img)
+        if i == 0:
+          i = 1
+          continue
+        else:
+          put_png_to_jpg(fileImgName, bgPath, imgPath)
+    fileIndex += 1
 
 
 if __name__ == '__main__':
