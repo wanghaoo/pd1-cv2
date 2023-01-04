@@ -1,3 +1,4 @@
+import json
 import cv2
 import numpy as np
 import os
@@ -37,28 +38,18 @@ def put_png_to_jpg(fileName, img_jpg, img_png):
     res_img = merge_img(img_jpg, img_png, 0, img_png.shape[0], 0, img_png.shape[1])
     cv2.imwrite(fileName, res_img)
  
-def coverImg():
-  bgPath = "蝴蝶/背景"
-  bgFiles = os.listdir(bgPath)
-
-  hdPath = "蝴蝶/蝴蝶"
-  hdFiles = os.listdir(hdPath)
-
-  zsPath = "蝴蝶/装饰"
-  zsFiles = os.listdir(zsPath)
-
-  dzPath = "蝴蝶/点缀"
-  dzFiles = os.listdir(dzPath)
-
-  
-  loop_val = [bgFiles, hdFiles, zsFiles, dzFiles]
+def coverImg(pathes):
+  loop_val = []
+  for path in pathes :
+    files = os.listdir(path)
+    loop_val.append(files)
   fileIndex = 0
   for imgList in product(*loop_val):
     print(imgList)
     i = 0
-    for img in imgList:
-      imgPath = "test-png/" + img
-      bgPath = "test-png/" + imgList[0]
+    for idx, img in enumerate(imgList):
+      imgPath = pathes[idx] + "/" + img
+      bgPath = pathes[0] + "/" + imgList[0]
       fileImgName = str(fileIndex) + ".png"
       print("imgPath", imgPath)
       print("bgPath", bgPath)
@@ -71,8 +62,22 @@ def coverImg():
           continue
         else:
           put_png_to_jpg(fileImgName, bgPath, imgPath)
+
+      # floderName = imgList[1]
+      # floderArr = floderName.split("/")
+      # fileName = floderArr[len(floderArr)-1]
+      # fileNameArr = fileName.split(".")
+    with open(str(fileIndex) + '.json', 'w') as f:
+      data = []
+      for idx, path in enumerate(pathes) :
+        fileNameArr = imgList[idx].split(".")
+        data.append({
+                "trait_type": path,
+                "value": fileNameArr[0]
+              })
+      json.dump(data, f)
     fileIndex += 1
 
-
 if __name__ == '__main__':
-    coverImg()
+  pathes = ["Background","Fur","Expression", "Clothes", "Earring", "Eyes", "Hand", "Hat", "Mouth"]
+  coverImg(pathes)
