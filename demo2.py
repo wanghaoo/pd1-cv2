@@ -2,6 +2,8 @@ import json
 import cv2
 import numpy as np
 import os
+import threading
+import time
 from itertools import product
  
  
@@ -38,46 +40,47 @@ def put_png_to_jpg(fileName, img_jpg, img_png):
     res_img = merge_img(img_jpg, img_png, 0, img_png.shape[0], 0, img_png.shape[1])
     cv2.imwrite(fileName, res_img)
  
+def doThread(pathes, imgList, fileIndex) : 
+  i = 0
+  for idx, img in enumerate(imgList):
+    imgPath = pathes[idx] + "/" + img
+    bgPath = pathes[0] + "/" + imgList[0]
+    fileImgName = str(fileIndex) + ".png"
+    if os.path.exists(fileImgName):
+      put_png_to_jpg(fileImgName, fileImgName, imgPath)
+    else:
+      if i == 0:
+        i = 1
+        continue
+      else:
+        put_png_to_jpg(fileImgName, bgPath, imgPath)
+
+    # floderName = imgList[1]
+    # floderArr = floderName.split("/")
+    # fileName = floderArr[len(floderArr)-1]
+    # fileNameArr = fileName.split(".")
+  with open(str(fileIndex) + '.json', 'w') as f:
+    data = []
+    for idx, path in enumerate(pathes) :
+      fileNameArr = imgList[idx].split(".")
+      data.append({
+              "trait_type": path,
+              "value": fileNameArr[0]
+            })
+    json.dump(data, f)
+
 def coverImg(pathes):
   loop_val = []
   for path in pathes :
     files = os.listdir(path)
     loop_val.append(files)
-  fileIndex = 0
+  fileIndex = 2976
   for imgList in product(*loop_val):
-    print(imgList)
-    i = 0
-    for idx, img in enumerate(imgList):
-      imgPath = pathes[idx] + "/" + img
-      bgPath = pathes[0] + "/" + imgList[0]
-      fileImgName = str(fileIndex) + ".png"
-      print("imgPath", imgPath)
-      print("bgPath", bgPath)
-      print("fileImgName", fileImgName)
-      if os.path.exists(fileImgName):
-        put_png_to_jpg(fileImgName, fileImgName, imgPath)
-      else:
-        if i == 0:
-          i = 1
-          continue
-        else:
-          put_png_to_jpg(fileImgName, bgPath, imgPath)
-
-      # floderName = imgList[1]
-      # floderArr = floderName.split("/")
-      # fileName = floderArr[len(floderArr)-1]
-      # fileNameArr = fileName.split(".")
-    with open(str(fileIndex) + '.json', 'w') as f:
-      data = []
-      for idx, path in enumerate(pathes) :
-        fileNameArr = imgList[idx].split(".")
-        data.append({
-                "trait_type": path,
-                "value": fileNameArr[0]
-              })
-      json.dump(data, f)
+    t = threading.Thread(target=doThread, args=(pathes, imgList, fileIndex))
+    t.start()
+    time.sleep(2)
     fileIndex += 1
 
 if __name__ == '__main__':
-  pathes = ["Background","Fur","Expression", "Clothes", "Earring", "Eyes", "Hand", "Hat", "Mouth"]
+  pathes = ["Background","Fur", "Face", "Hand"]
   coverImg(pathes)
